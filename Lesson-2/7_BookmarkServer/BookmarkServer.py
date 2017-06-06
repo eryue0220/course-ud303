@@ -72,7 +72,11 @@ def CheckURI(uri, timeout=5):
     (i.e. times out).
     '''
     # 1. Write this function.  Delete the following line.
-    raise NotImplementedError("Step 1 isn't written yet.")
+    try:
+        r = requests.get(uri, timeout=timeout)
+        return r.status_code == 200
+    except requests.RequestException:
+        return False
 
 
 class Shortener(http.server.BaseHTTPRequestHandler):
@@ -85,7 +89,9 @@ class Shortener(http.server.BaseHTTPRequestHandler):
             if name in memory:
                 # 2. Send a 303 redirect to the long URI in memory[name].
                 #    Delete the following line.
-                raise NotImplementedError("Step 2 isn't written yet.")
+                self.send_response(303)
+                self.send_header('Location', memory[name])
+                self.end_headers()
             else:
                 # We don't know that name! Send a 404 error.
                 self.send_response(404)
@@ -116,13 +122,19 @@ class Shortener(http.server.BaseHTTPRequestHandler):
 
             # 3. Serve a redirect to the root page (the form).
             #    Delete the following line.
-            raise NotImplementedError("Step 3 isn't written yet!")
+            self.send_response(303)
+            self.send_header('Location', '/')
+            self.end_headers()
         else:
             # Didn't successfully fetch the long URI.
 
             # 4. Send a 404 error with a useful message.
             #    Delete the following line.
-            raise NotImplementedError("Step 4 isn't written yet!")
+            self.send_response(404)
+            self.send_header('Content-type', 'text/plain; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(
+                "Couldn't fetch URI '{}'. Sorry!".format(longuri).encode())
 
 if __name__ == '__main__':
     server_address = ('', 8000)
